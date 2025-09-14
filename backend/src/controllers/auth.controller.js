@@ -6,26 +6,22 @@ import nodemailer from "nodemailer";
 
 export async function signup(req, res) {
   const { email, password, fullName } = req.body;
-console.log(1)
   try {
     if (!email || !password || !fullName) {
       return res.status(400).json({ message: "All fields are required" });
     }
-console.log(12)
 
     if (password.length < 6) {
       return res
         .status(400)
         .json({ message: "Password must be at least 6 characters" });
     }
-console.log(13)
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
       return res.status(400).json({ message: "Invalid email format" });
     }
-console.log(14)
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -33,7 +29,7 @@ console.log(14)
         .status(400)
         .json({ message: "Email already exists, please use a diffrent one" });
     }
-console.log(15)
+    console.log(15);
 
     const idx = Math.floor(Math.random() * 100) + 1; // generate a num between 1-100
     const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
@@ -44,7 +40,6 @@ console.log(15)
       password,
       profilePic: randomAvatar,
     });
-console.log(16)
 
     try {
       await upsertStreamUser({
@@ -52,11 +47,9 @@ console.log(16)
         name: newUser.fullName,
         image: newUser.profilePic || "",
       });
-      console.log(`Stream user created for ${newUser.fullName}`);
     } catch (error) {
       console.log("Error creating Stream user:", error);
     }
-console.log(71)
 
     const token = jwt.sign(
       { userId: newUser._id },
@@ -121,41 +114,41 @@ export function logout(req, res) {
 
 export async function sendOtp(req, res) {
   try {
-    const {email} = req.body;
- 
+    const { email } = req.body;
+
     if (!email) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
-     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
- 
-         await Otp.deleteOne({ email: email});
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-   const sotp = await Otp.create({
+    await Otp.deleteOne({ email: email });
+
+    const sotp = await Otp.create({
       email,
       otp: otpCode,
       expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 3 minutes
     });
- 
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
         user: "gpdndev@gmail.com",
         pass: "utqo bswo hccn gkpr",
       },
-       tls: {
-    rejectUnauthorized: false, // ⛔ only for dev, not production
-  },
+      tls: {
+        rejectUnauthorized: false,
+      },
     });
-const senderEmail = "gpdndev@gmail.com";
+    const senderEmail = "gpdndev@gmail.com";
 
-     await transporter.sendMail({
+    await transporter.sendMail({
       from: `"Streamify" <${senderEmail}>`,
       to: email,
       subject: "Your OTP Code",
       text: `Your OTP code is ${otpCode}. It expires in 3 minutes.`,
       html: `<h2>Your OTP code is <b>${otpCode}</b></h2><p>It expires in 3 minutes.</p>`,
     });
- 
+
     return res
       .status(200)
       .json({ success: true, message: "OTP sent to email" });
@@ -167,8 +160,8 @@ const senderEmail = "gpdndev@gmail.com";
 
 export async function verifyOtp(req, res) {
   try {
-     const { email, otp } = req.body;
-     if (!email || !otp) {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
@@ -177,12 +170,11 @@ export async function verifyOtp(req, res) {
       return res.status(400).json({ message: "OTP IS EXPIRED" });
     }
 
-     if ( otp !== otpRecord?.otp) {
+    if (otp !== otpRecord?.otp) {
       return res.status(400).json({ message: "Wrong otp" });
-    }else{
-    await Otp.deleteOne({ _id: otpRecord._id });
+    } else {
+      await Otp.deleteOne({ _id: otpRecord._id });
     }
-
 
     res
       .status(200)
@@ -237,9 +229,6 @@ export async function onboard(req, res) {
         name: updatedUser.fullName,
         image: updatedUser.profilePic || "",
       });
-      console.log(
-        `Stream user updated after onboarding for ${updatedUser.fullName}`
-      );
     } catch (streamError) {
       console.log(
         "Error updating Stream user during onboarding:",

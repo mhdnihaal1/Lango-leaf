@@ -163,6 +163,9 @@ export const THEMES = [
 ];
 
 export const LANGUAGES = [
+  "Malayalam",
+  "Telungu",
+  "Tamil",
   "English",
   "Spanish",
   "French",
@@ -180,6 +183,9 @@ export const LANGUAGES = [
 ];
 
 export const LANGUAGE_TO_FLAG = {
+  Malayalam: "in",
+  Tamil: "in",
+  Telungu: "in",
   english: "gb",
   spanish: "es",
   french: "fr",

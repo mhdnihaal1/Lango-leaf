@@ -42,12 +42,10 @@ const ChatPage = () => {
 
       try {
         console.log("Initializing stream chat client...");
-console.log(1)
-        const client = StreamChat.getInstance(STREAM_API_KEY);
+         const client = StreamChat.getInstance(STREAM_API_KEY);
         
 
-console.log(12)
-
+ 
         await client.connectUser(
           {
             id: authUser._id,
@@ -56,13 +54,11 @@ console.log(12)
           },
           tokenData.token
         );
-console.log(123)
-
+ 
         //
         console.log(targetUserId,authUser._id)
         const channelId = [authUser._id, targetUserId].sort().join("-");
-console.log(1234)
-
+ 
         // you and me
         // if i start the chat => channelId: [myId, yourId]
         // if you start the chat => channelId: [yourId, myId]  => [myId,yourId]
@@ -70,11 +66,9 @@ console.log(1234)
         const currChannel = client.channel("messaging", channelId, {
           members: [authUser._id, targetUserId],
         });
-console.log(12345,currChannel)
-
+ 
         await currChannel.watch();
-console.log(123456) 
-
+ 
         setChatClient(client);
         setChannel(currChannel);
       } catch (error) {

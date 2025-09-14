@@ -1,6 +1,7 @@
 import { axiosInstance } from "./axios";
 
 export const signup = async (signupData) => {
+  console.log("on sign up")
   const response = await axiosInstance.post("/auth/signup", signupData);
   return response.data;
 };
@@ -11,6 +12,17 @@ export const login = async (loginData) => {
 };
 export const logout = async () => {
   const response = await axiosInstance.post("/auth/logout");
+  return response.data;
+};
+
+export const sendOtp = async (email) => {
+  const response = await axiosInstance.post("/auth/sendOtp",email);
+  return response.data;
+};
+
+export const verifyOtp = async (otpverify) => {
+
+  const response = await axiosInstance.post("/auth/verifyOtp",otpverify);
   return response.data;
 };
 

@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { ShipWheelIcon } from "lucide-react";
 import { Link } from "react-router";
-
 import useSignUp from "../hooks/useSignUp";
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { sendOtp , verifyOtp} from "../lib/api";
 
 const SignUpPage = () => {
   const [signupData, setSignupData] = useState({
@@ -10,6 +12,8 @@ const SignUpPage = () => {
     email: "",
     password: "",
   });
+   const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otp, setOtp] = useState("");
 
   // This is how we did it at first, without using our custom hook
   // const queryClient = useQueryClient();
@@ -23,11 +27,52 @@ const SignUpPage = () => {
   // });
 
   // This is how we did it using our custom hook - optimized version
-  const { isPending, error, signupMutation } = useSignUp();
+  const { signupMutation, isPending, error } = useSignUp();
 
+    const { mutate: sendOtpMutation } = useMutation({
+        mutationFn: sendOtp,
+        onSuccess: () => {
+          toast.success("Otp sended successfully");
+         },
+    
+        onError: (error) => {
+          console.log(error);
+          toast.error("Failed to send Otp");
+        },
+      });
+
+      
+         const { mutate: verifyOtpMutation } = useMutation({
+        mutationFn: verifyOtp,
+          onSuccess: (response) => {
+     console.log(111111111,response)
+     if (response?.success == true) {
+      toast.success("Otp verified successfully");
+      console.log(signupData)
+      signupMutation(signupData)
+      setShowOtpModal(false);
+    } else {
+      toast.error("Invalid OTP, please try again");
+    }
+  },
+    
+        onError: (error) => {
+          console.log(error);
+          toast.error("Failed to verify Otp");
+        },
+      });
+
+      const verifyOtpSubmit = (otp) => {
+    verifyOtpMutation({
+    otp,                 // OTP code entered by user
+    email: signupData.email, // Email from signup form
+  });
+setOtp("")
+      }
   const handleSignup = (e) => {
     e.preventDefault();
-    signupMutation(signupData);
+   sendOtpMutation(signupData)
+   setShowOtpModal(true); // ✅ show modal after sending OTP
   };
 
   return (
@@ -35,6 +80,8 @@ const SignUpPage = () => {
       className="h-screen flex items-center justify-center p-4 sm:p-6 md:p-8"
       data-theme="forest"
     >
+  
+
       <div className="border border-primary/25 flex flex-col lg:flex-row w-full max-w-5xl mx-auto bg-base-100 rounded-xl shadow-lg overflow-hidden">
         {/* SIGNUP FORM - LEFT SIDE */}
         <div className="w-full lg:w-1/2 p-4 sm:p-8 flex flex-col">
@@ -163,6 +210,44 @@ const SignUpPage = () => {
           </div>
         </div>
       </div>
+           {/* OTP Modal */}
+{showOtpModal && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm">
+    <div className="bg-gray-900 text-white p-6 rounded-2xl shadow-2xl w-96 border border-gray-700">
+      <h2 className="text-xl font-bold mb-4 text-center text-green-400">
+        🔑 Verify Your OTP
+      </h2>
+ 
+      <input
+        type="text"
+        placeholder="Enter OTP"
+        value={otp}
+        onChange={(e) => setOtp(e.target.value)}
+        className="border border-gray-600 bg-gray-800 text-white rounded-lg p-3 w-full mb-5 focus:outline-none focus:ring-2 focus:ring-green-500"
+      />
+
+ 
+        <div className="flex justify-between gap-3">
+        <button
+          className="flex-1 px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition duration-200"
+          onClick={() => setShowOtpModal(false)}
+        >
+          Cancel
+        </button>
+        <button
+          className="flex-1 px-4 py-2 bg-green-600 rounded-lg text-white hover:bg-green-500 transition duration-200 shadow-lg hover:shadow-green-500/50"
+          onClick={() => verifyOtpSubmit(otp)}
+        >
+          Verify
+        </button>
+        
+      </div>
+       <span className="text-xs flex justify-center text-gray-400 italic">
+    ⚠️ Going back now could cancel your signup.
+  </span>
+    </div>
+  </div>
+)}
     </div>
   );
 };

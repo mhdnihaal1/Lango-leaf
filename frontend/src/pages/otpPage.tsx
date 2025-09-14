@@ -13,7 +13,8 @@ const OtpVerificationPage = () => {
       // redirect or fetch user again
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Invalid OTP");
+        console.log(error)
+    //   toast.error(error.response?.data?.message || "Invalid OTP");
     },
   });
 

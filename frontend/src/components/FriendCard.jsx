@@ -33,6 +33,7 @@ const FriendCard = ({ friend }) => {
 };
 export default FriendCard;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function getLanguageFlag(language) {
   if (!language) return null;
   
